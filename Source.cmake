@@ -7,6 +7,7 @@ target_sources(${PROJECT_NAME} PRIVATE
    "${SRC_DIR}/MathUtils.h"
    "${SRC_DIR}/Pixel.h"
    "${SRC_DIR}/Ray.h"
+   "${SRC_DIR}/Sphere.h"
    "${SRC_DIR}/VecTypes.h"
 
    "${SRC_DIR}/Core/Assert.h"

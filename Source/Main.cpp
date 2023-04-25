@@ -3,6 +3,7 @@
 #include "Image.h"
 #include "MathUtils.h"
 #include "Ray.h"
+#include "Sphere.h"
 #include "VecTypes.h"
 
 #include <glm/glm.hpp>
@@ -16,6 +17,12 @@ namespace
 {
    Color rayColor(const Ray& ray)
    {
+      Sphere sphere(Point3(0.0, 0.0, 1.0), 0.5);
+      if (sphere.hit(ray))
+      {
+         return Color(1.0, 0.0, 0.0);
+      }
+
       Vec3 unitDirection = glm::normalize(ray.getDirection());
       double t = 0.5 * (unitDirection.y + 1.0);
 
@@ -55,7 +62,7 @@ int main(int argc, char* argv[])
       }
    }
 
-   if (std::optional<std::filesystem::path> outputPath = IOUtils::getAboluteProjectPath("Output/Gradient.png"))
+   if (std::optional<std::filesystem::path> outputPath = IOUtils::getAboluteProjectPath("Output/RedSphere.png"))
    {
       image.writeToFile(*outputPath);
    }
