@@ -39,6 +39,11 @@ public:
       return width * height;
    }
 
+   double getAspectRatio() const
+   {
+      return static_cast<double>(width) / height;
+   }
+
    std::span<const Pixel> getPixels() const
    {
       return std::span<const Pixel>(pixels.get(), getNumPixels());
