@@ -41,17 +41,16 @@ public:
    {
       Vec3 toOrigin = ray.getOrigin() - center;
 
-      double a = 1.0; // glm::length2(ray.getDirection()); // Ray directions are normalized
-      double b = 2.0 * glm::dot(toOrigin, ray.getDirection());
+      double halfB = glm::dot(toOrigin, ray.getDirection());
       double c = glm::length2(toOrigin) - radius * radius;
-      double discriminant = b * b - 4.0 * a * c;
+      double discriminant = halfB * halfB - c;
 
       if (discriminant < 0.0)
       {
          return false;
       }
 
-      t = (-b - glm::sqrt(discriminant)) / (2.0 * a);
+      t = -halfB - glm::sqrt(discriminant);
       return true;
    }
 
