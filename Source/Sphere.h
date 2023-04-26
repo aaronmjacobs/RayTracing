@@ -37,16 +37,22 @@ public:
       radius = glm::max(0.0, newRadius);
    }
 
-   bool hit(const Ray& ray) const
+   bool hit(const Ray& ray, double& t) const
    {
-      Vec3 toCenter = center - ray.getOrigin();
+      Vec3 toOrigin = ray.getOrigin() - center;
 
-      double a = glm::length2(ray.getDirection());
-      double b = 2.0 * glm::dot(toCenter, ray.getDirection());
-      double c = glm::length2(toCenter) - radius * radius;
+      double a = 1.0; // glm::length2(ray.getDirection()); // Ray directions are normalized
+      double b = 2.0 * glm::dot(toOrigin, ray.getDirection());
+      double c = glm::length2(toOrigin) - radius * radius;
       double discriminant = b * b - 4.0 * a * c;
 
-      return discriminant > 0.0;
+      if (discriminant < 0.0)
+      {
+         return false;
+      }
+
+      t = (-b - glm::sqrt(discriminant)) / (2.0 * a);
+      return true;
    }
 
 private:

@@ -18,9 +18,11 @@ namespace
    Color rayColor(const Ray& ray)
    {
       Sphere sphere(Point3(0.0, 0.0, 1.0), 0.5);
-      if (sphere.hit(ray))
+      double hitTime = 0.0;
+      if (sphere.hit(ray, hitTime))
       {
-         return Color(1.0, 0.0, 0.0);
+         Vec3 normal = glm::normalize(ray.at(hitTime) - sphere.getCenter());
+         return Color((normal + Vec3(1.0)) * 0.5);
       }
 
       Vec3 unitDirection = glm::normalize(ray.getDirection());
@@ -62,7 +64,7 @@ int main(int argc, char* argv[])
       }
    }
 
-   if (std::optional<std::filesystem::path> outputPath = IOUtils::getAboluteProjectPath("Output/RedSphere.png"))
+   if (std::optional<std::filesystem::path> outputPath = IOUtils::getAboluteProjectPath("Output/NormalSphere.png"))
    {
       image.writeToFile(*outputPath);
    }

@@ -2,6 +2,8 @@
 
 #include "VecTypes.h"
 
+#include <glm/glm.hpp>
+
 class Ray
 {
 public:
@@ -9,7 +11,7 @@ public:
 
    Ray(const Point3& rayOrigin, const Vec3& rayDirection)
       : origin(rayOrigin)
-      , direction(rayDirection)
+      , direction(glm::normalize(rayDirection))
    {
    }
 
