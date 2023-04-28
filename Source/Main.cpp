@@ -3,6 +3,7 @@
 #include "Image.h"
 #include "MathUtils.h"
 #include "Ray.h"
+#include "Scene.h"
 #include "Sphere.h"
 #include "VecTypes.h"
 
@@ -15,14 +16,12 @@
 
 namespace
 {
-   Color rayColor(const Ray& ray)
+   Color rayColor(const Scene& scene, const Ray& ray)
    {
-      Sphere sphere(Point3(0.0, 0.0, 1.0), 0.5);
-      double hitTime = 0.0;
-      if (sphere.hit(ray, hitTime))
+      HitRecord hitRecord;
+      if (scene.cast(ray, 0.0, 100.0, hitRecord))
       {
-         Vec3 normal = glm::normalize(ray.at(hitTime) - sphere.getCenter());
-         return Color((normal + Vec3(1.0)) * 0.5);
+         return Color((hitRecord.normal + Vec3(1.0)) * 0.5);
       }
 
       Vec3 unitDirection = glm::normalize(ray.getDirection());
@@ -49,6 +48,10 @@ int main(int argc, char* argv[])
 
    Image image(400, MathUtils::round<uint32_t>(400 / kAspectRatio));
 
+   Scene scene;
+   scene.add(std::make_unique<Sphere>(Point3(0.0, 0.0, 1.0), 0.5));
+   scene.add(std::make_unique<Sphere>(Point3(0.0, -100.5, 1.0), 100.0));
+
    for (uint32_t y = 0; y < image.getHeight(); ++y)
    {
       LOG_INFO("Progress: " << static_cast<double>(y * 100) / image.getHeight() << "%");
@@ -60,11 +63,11 @@ int main(int argc, char* argv[])
 
          Point3 location = lowerLeftCorner + u * horizontal + v * vertical;
          Ray ray(origin, location - origin);
-         image.setPixel(x, y, Pixel(rayColor(ray)));
+         image.setPixel(x, y, Pixel(rayColor(scene, ray)));
       }
    }
 
-   if (std::optional<std::filesystem::path> outputPath = IOUtils::getAboluteProjectPath("Output/NormalSphere.png"))
+   if (std::optional<std::filesystem::path> outputPath = IOUtils::getAboluteProjectPath("Output/Ground.png"))
    {
       image.writeToFile(*outputPath);
    }
