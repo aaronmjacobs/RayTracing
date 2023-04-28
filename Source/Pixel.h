@@ -3,6 +3,7 @@
 #include "VecTypes.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtc/color_space.hpp>
 
 #include <cstdint>
 #include <limits>
@@ -27,17 +28,12 @@ struct Pixel
    {
    }
 
-   Pixel(double red, double green, double blue)
-      : r(quantize(red))
-      , g(quantize(green))
-      , b(quantize(blue))
-   {
-   }
-
    explicit Pixel(const Color& color)
-      : r(quantize(color.r))
-      , g(quantize(color.g))
-      , b(quantize(color.b))
    {
+      Color srgbColor = glm::convertLinearToSRGB(color);
+
+      r = quantize(srgbColor.r);
+      g = quantize(srgbColor.g);
+      b = quantize(srgbColor.b);
    }
 };
