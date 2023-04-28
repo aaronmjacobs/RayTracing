@@ -1,5 +1,6 @@
 #include "Core/Log.h"
 
+#include "Camera.h"
 #include "Image.h"
 #include "MathUtils.h"
 #include "Ray.h"
@@ -35,22 +36,15 @@ int main(int argc, char* argv[])
 {
    LOG_INFO("RayTracer running...");
 
-   static const double kAspectRatio = 16.0 / 9.0;
+   static const uint32_t kSamplesPerPixel = 100;
 
-   double viewportHeight = 2.0;
-   double viewportWidth = viewportHeight * kAspectRatio;
-   double focalLength = 1.0;
-
-   Point3 origin(0.0, 0.0, 0.0);
-   Vec3 horizontal(viewportWidth, 0.0, 0.0);
-   Vec3 vertical(0.0, viewportHeight, 0.0);
-   Point3 lowerLeftCorner = origin - horizontal / 2.0 - vertical / 2.0 + Vec3(0.0, 0.0, focalLength);
-
-   Image image(400, MathUtils::round<uint32_t>(400 / kAspectRatio));
+   Image image(400, MathUtils::round<uint32_t>(400 / Camera::kAspectRatio));
 
    Scene scene;
    scene.add(std::make_unique<Sphere>(Point3(0.0, 0.0, 1.0), 0.5));
    scene.add(std::make_unique<Sphere>(Point3(0.0, -100.5, 1.0), 100.0));
+
+   Camera camera;
 
    for (uint32_t y = 0; y < image.getHeight(); ++y)
    {
@@ -58,16 +52,22 @@ int main(int argc, char* argv[])
 
       for (uint32_t x = 0; x < image.getWidth(); ++x)
       {
-         double u = x / static_cast<double>(image.getWidth() - 1);
-         double v = y / static_cast<double>(image.getHeight() - 1);
+         Color pixelColor(0.0, 0.0, 0.0);
+         for (uint32_t i = 0; i < kSamplesPerPixel; ++i)
+         {
+            double u = (x + MathUtils::randomCentered()) / static_cast<double>(image.getWidth() - 1);
+            double v = (y + MathUtils::randomCentered()) / static_cast<double>(image.getHeight() - 1);
+            Ray ray = camera.getRay(u, v);
 
-         Point3 location = lowerLeftCorner + u * horizontal + v * vertical;
-         Ray ray(origin, location - origin);
-         image.setPixel(x, y, Pixel(rayColor(scene, ray)));
+            pixelColor += rayColor(scene, ray);
+         }
+         pixelColor /= kSamplesPerPixel;
+
+         image.setPixel(x, y, Pixel(pixelColor));
       }
    }
 
-   if (std::optional<std::filesystem::path> outputPath = IOUtils::getAboluteProjectPath("Output/Ground.png"))
+   if (std::optional<std::filesystem::path> outputPath = IOUtils::getAboluteProjectPath("Output/Multisample.png"))
    {
       image.writeToFile(*outputPath);
    }

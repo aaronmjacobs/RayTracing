@@ -1,6 +1,7 @@
 set(SRC_DIR "${PROJECT_SOURCE_DIR}/Source")
 
 target_sources(${PROJECT_NAME} PRIVATE
+   "${SRC_DIR}/Camera.h"
    "${SRC_DIR}/Image.cpp"
    "${SRC_DIR}/Image.h"
    "${SRC_DIR}/Main.cpp"
