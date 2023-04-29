@@ -1,5 +1,6 @@
 #pragma once
 
+#define PPK_ASSERT_ENABLED RAYTRACER_WITH_DEBUG_INFO
 #define PPK_ASSERT_DISABLE_STL // Reduce compile times
 
 #include <ppk_assert.h>
