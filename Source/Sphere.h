@@ -1,6 +1,9 @@
 #pragma once
 
+#include "HitRecord.h"
 #include "Primitive.h"
+#include "Ray.h"
+#include "VecTypes.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtx/norm.hpp>

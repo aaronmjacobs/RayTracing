@@ -1,5 +1,6 @@
 #pragma once
 
+#include "HitRecord.h"
 #include "Ray.h"
 #include "Primitive.h"
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "VecTypes.h"
+
 #include <glm/glm.hpp>
 #include <glm/gtx/norm.hpp>
 

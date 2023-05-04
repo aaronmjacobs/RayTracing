@@ -1,15 +1,7 @@
 #pragma once
 
-#include "Ray.h"
-#include "VecTypes.h"
-
-struct HitRecord
-{
-   Point3 point;
-   Vec3 normal;
-   double t = 0.0;
-   bool frontFace = true;
-};
+class Ray;
+struct HitRecord;
 
 class Primitive
 {

@@ -1,6 +1,7 @@
 #include "Core/Log.h"
 
 #include "Camera.h"
+#include "HitRecord.h"
 #include "Image.h"
 #include "MathUtils.h"
 #include "Ray.h"
@@ -138,7 +139,10 @@ int main(int argc, char* argv[])
 {
    LOG_INFO("RayTracer running...");
 
-   Image image(400, MathUtils::round<uint32_t>(400 / Camera::kAspectRatio));
+   static const uint32_t kWidth = 400;
+   static const uint32_t kHeight = MathUtils::round<uint32_t>(kWidth / Camera::kAspectRatio);
+
+   Image image(kWidth, kHeight);
 
    Scene scene;
    scene.add(std::make_unique<Sphere>(Point3(0.0, 0.0, 1.0), 0.5));
