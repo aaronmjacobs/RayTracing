@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "HitRecord.h"
 #include "Image.h"
+#include "Material.h"
 #include "MathUtils.h"
 #include "Ray.h"
 #include "Scene.h"
@@ -32,8 +33,14 @@ namespace
       HitRecord hitRecord;
       if (scene.cast(ray, 0.001, MathUtils::kInfinity, hitRecord))
       {
-         Point3 target = hitRecord.point + hitRecord.normal + MathUtils::randomUnitVec3();
-         return 0.5 * rayColor(scene, Ray(hitRecord.point, target - hitRecord.point), depth - 1);
+         Color attenuation;
+         Ray scatteredRay;
+         if (!hitRecord.material->scatter(ray, hitRecord, attenuation, scatteredRay))
+         {
+            return Color(0.0, 0.0, 0.0);
+         }
+
+         return attenuation * rayColor(scene, scatteredRay, depth - 1);
       }
 
       Vec3 unitDirection = glm::normalize(ray.getDirection());
@@ -42,25 +49,30 @@ namespace
       return glm::mix(Color(1.0, 1.0, 1.0), Color(0.5, 0.7, 1.0), t);
    }
 
-   void traceLine(const Scene& scene, const Camera& camera, uint32_t y, Image& image)
+   void tracePixel(const Scene& scene, const Camera& camera, uint32_t x, uint32_t y, Image& image)
    {
       static const uint32_t kSamplesPerPixel = 100;
       static const int kMaxDepth = 50;
 
+      Color pixelColor(0.0, 0.0, 0.0);
+      for (uint32_t i = 0; i < kSamplesPerPixel; ++i)
+      {
+         double u = (x + MathUtils::randomCentered()) / static_cast<double>(image.getWidth() - 1);
+         double v = (y + MathUtils::randomCentered()) / static_cast<double>(image.getHeight() - 1);
+         Ray ray = camera.getRay(u, v);
+
+         pixelColor += rayColor(scene, ray, kMaxDepth);
+      }
+      pixelColor /= kSamplesPerPixel;
+
+      image.setPixel(x, y, Pixel(pixelColor));
+   }
+
+   void traceLine(const Scene& scene, const Camera& camera, uint32_t y, Image& image)
+   {
       for (uint32_t x = 0; x < image.getWidth(); ++x)
       {
-         Color pixelColor(0.0, 0.0, 0.0);
-         for (uint32_t i = 0; i < kSamplesPerPixel; ++i)
-         {
-            double u = (x + MathUtils::randomCentered()) / static_cast<double>(image.getWidth() - 1);
-            double v = (y + MathUtils::randomCentered()) / static_cast<double>(image.getHeight() - 1);
-            Ray ray = camera.getRay(u, v);
-
-            pixelColor += rayColor(scene, ray, kMaxDepth);
-         }
-         pixelColor /= kSamplesPerPixel;
-
-         image.setPixel(x, y, Pixel(pixelColor));
+         tracePixel(scene, camera, x, y, image);
       }
    }
 
@@ -144,15 +156,22 @@ int main(int argc, char* argv[])
 
    Image image(kWidth, kHeight);
 
+   static const Color kGroundColor(0.8, 0.8, 0.0);
+   static const Color kCenterColor(0.7, 0.3, 0.3);
+   static const Color kLeftColor(0.8, 0.8, 0.8);
+   static const Color kRightColor(0.8, 0.6, 0.2);
+
    Scene scene;
-   scene.add(std::make_unique<Sphere>(Point3(0.0, 0.0, 1.0), 0.5));
-   scene.add(std::make_unique<Sphere>(Point3(0.0, -100.5, 1.0), 100.0));
+   scene.add(std::make_unique<Sphere>(Point3(0.0, -100.5, 1.0), 100.0, std::make_unique<LambertianMaterial>(kGroundColor)));
+   scene.add(std::make_unique<Sphere>(Point3(0.0, 0.0, 1.0), 0.5, std::make_unique<LambertianMaterial>(kCenterColor)));
+   scene.add(std::make_unique<Sphere>(Point3(-1.0, 0.0, 1.0), 0.5, std::make_unique<MetalMaterial>(kLeftColor)));
+   scene.add(std::make_unique<Sphere>(Point3(1.0, 0.0, 1.0), 0.5, std::make_unique<MetalMaterial>(kRightColor)));
 
    Camera camera;
 
    trace(scene, camera, image, false);
 
-   if (std::optional<std::filesystem::path> outputPath = IOUtils::getAboluteProjectPath("Output/Diffuse.png"))
+   if (std::optional<std::filesystem::path> outputPath = IOUtils::getAboluteProjectPath("Output/Metal.png"))
    {
       image.writeToFile(*outputPath);
    }

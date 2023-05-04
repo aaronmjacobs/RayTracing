@@ -6,6 +6,7 @@ target_sources(${PROJECT_NAME} PRIVATE
    "${SRC_DIR}/Image.cpp"
    "${SRC_DIR}/Image.h"
    "${SRC_DIR}/Main.cpp"
+   "${SRC_DIR}/Material.h"
    "${SRC_DIR}/MathUtils.h"
    "${SRC_DIR}/Pixel.h"
    "${SRC_DIR}/Primitive.h"

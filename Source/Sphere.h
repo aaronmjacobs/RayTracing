@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HitRecord.h"
+#include "Material.h"
 #include "Primitive.h"
 #include "Ray.h"
 #include "VecTypes.h"
@@ -8,14 +9,18 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/norm.hpp>
 
+#include <memory>
+#include <utility>
+
 class Sphere : public Primitive
 {
 public:
    Sphere() = default;
 
-   Sphere(const Point3& sphereCenter, double sphereRadius)
+   Sphere(const Point3& sphereCenter, double sphereRadius, std::unique_ptr<Material> sphereMaterial)
       : center(sphereCenter)
       , radius(glm::max(0.0, sphereRadius))
+      , material(std::move(sphereMaterial))
    {
    }
 
@@ -71,10 +76,12 @@ public:
       {
          record.normal = -record.normal;
       }
+      record.material = material.get();
       return true;
    }
 
 private:
    Point3 center;
    double radius = 0.0;
+   std::unique_ptr<Material> material;
 };
