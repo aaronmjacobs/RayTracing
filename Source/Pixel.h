@@ -1,5 +1,6 @@
 #pragma once
 
+#include "MathUtils.h"
 #include "VecTypes.h"
 
 #include <glm/glm.hpp>
@@ -16,7 +17,7 @@ struct Pixel
 
    static uint8_t quantize(double value)
    {
-      return static_cast<uint8_t>(glm::max(0.0, glm::min(value, 1.0) - std::numeric_limits<double>::epsilon()) * 256);
+      return static_cast<uint8_t>(glm::clamp(value, 0.0, MathUtils::kAlmostOne) * 256);
    }
 
    Pixel() = default;
